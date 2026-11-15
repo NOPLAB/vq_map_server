@@ -1,0 +1,19 @@
+vq_map_server
+Copyright 2026 nop <noplab90@gmail.com>
+
+This product includes code adapted from vq_occupancy_compressor,
+Copyright 2025 Ryo Funai, licensed under the Apache License, Version 2.0.
+Upstream: https://github.com/cafeline/vq_occupancy_compressor
+Revision: 6157adcde9bd94b796f67dfaf1ffbd67492e3827
+
+The dictionary deduplication and block bit layout in src/map_converter.cpp
+are adapted from src/core/PatternDictionaryBuilder.cpp and
+src/model/VoxelGrid.cpp. The HDF5 packing convention in src/map_io.cpp
+is adapted from src/io/HDF5IO.cpp. The adapted files identify changes.
+
+Reference paper:
+Ryo Funai, Yasuo Hayashibara, Ryuichi Ueda,
+"Compression of 3D Occupancy Grid Map for Mobile Robot Localization
+using Vector Quantization", 31st Robotics Symposia, 2026, pp. 15-21.
+
+emcl3d informed the package layout. No emcl3d source is included.

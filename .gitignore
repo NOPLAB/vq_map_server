@@ -1,0 +1,5 @@
+/build/
+/install/
+/log/
+*.h5
+*.hdf5

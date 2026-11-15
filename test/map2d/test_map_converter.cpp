@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "vq_map_server/map2d/map_converter.hpp"
 #include <gtest/gtest.h>
+#include <nav2_map_server/map_io.hpp>
 
 #include <cstdlib>
 #include <filesystem>
@@ -79,7 +80,7 @@ TEST_F(Converter2dTest, BinaryUnknownRequiresExplicitReplacement) {
   EXPECT_THROW(convertOccupancyGrid(path, options), std::invalid_argument);
 }
 
-TEST_F(Converter2dTest, PngUsesNav2TrinaryAlphaAveragingAndImageInversion) {
+TEST_F(Converter2dTest, PngPreservesNativeNav2TrinaryCellsAndImageInversion) {
   // RGBA rows: opaque black/white/gray; transparent white/black, opaque white.
   const unsigned char png[] = {
       137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,3,0,0,0,2,8,6,0,0,0,
@@ -88,15 +89,24 @@ TEST_F(Converter2dTest, PngUsesNav2TrinaryAlphaAveragingAndImageInversion) {
   std::ofstream output(directory / "image.png", std::ios::binary);
   output.write(reinterpret_cast<const char *>(png), sizeof(png));
   output.close();
-  const auto map = convertOccupancyGrid(yaml("image.png"));
-  // Humble includes inverse opacity as a fourth channel: transparent white
-  // has shade .75 (unknown), opaque black has shade .25 (occupied).
-  const std::vector<CellState> expected{
-      CellState::Unknown, CellState::Occupied, CellState::Free,
-      CellState::Occupied, CellState::Free, CellState::Unknown};
+  const auto path = yaml("image.png");
+  nav_msgs::msg::OccupancyGrid native;
+  nav2_map_server::loadMapFromFile(nav2_map_server::loadMapYaml(path), native);
+  const auto map = convertOccupancyGrid(path);
+  // Nav2 releases differ in transparent-pixel handling. Preserve the installed
+  // decoder's cells, and independently pin opaque pixels and image row order.
+  ASSERT_EQ(native.data.size(), 6U);
+  EXPECT_EQ(map.at({0, 1}), CellState::Occupied);
+  EXPECT_EQ(map.at({1, 1}), CellState::Free);
+  EXPECT_EQ(map.at({2, 1}), CellState::Unknown);
+  EXPECT_EQ(map.at({2, 0}), CellState::Free);
   for (int y = 0; y < 2; ++y)
-    for (int x = 0; x < 3; ++x)
-      EXPECT_EQ(map.at({x, y}), expected[x + 3 * y]);
+    for (int x = 0; x < 3; ++x) {
+      const auto cell = native.data[x + 3 * y];
+      const auto expected = cell == 0 ? CellState::Free :
+          cell == 100 ? CellState::Occupied : CellState::Unknown;
+      EXPECT_EQ(map.at({x, y}), expected) << x << "," << y;
+    }
 }
 
 TEST_F(Converter2dTest, NegateAndStrictThresholdsComeFromYaml) {

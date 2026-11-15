@@ -43,9 +43,9 @@ foreach(dimension 2d 3d)
   target_link_libraries(vq_map_inspect_${dimension} vq_map_io_${dimension})
   add_executable(vq_map_server_${dimension} src/map${dimension}/server_node.cpp)
   target_link_libraries(vq_map_server_${dimension}
-    vq_map_conversion_${dimension} vq_map_io_${dimension} "${vq_map_typesupport}")
-  ament_target_dependencies(vq_map_server_${dimension}
-    rclcpp rcl_interfaces std_msgs sensor_msgs nav_msgs)
+    vq_map_conversion_${dimension} vq_map_io_${dimension} "${vq_map_typesupport}"
+    rclcpp::rclcpp ${rcl_interfaces_TARGETS} ${std_msgs_TARGETS}
+    ${sensor_msgs_TARGETS} ${nav_msgs_TARGETS})
   foreach(target vq_map_core vq_map_io vq_map_conversion
                  vq_map_convert vq_map_inspect vq_map_server)
     target_compile_options(${target}_${dimension} PRIVATE -Wall -Wextra -Wpedantic)
@@ -58,8 +58,15 @@ endforeach()
 
 target_link_libraries(vq_map_conversion_3d PRIVATE ${PCL_LIBRARIES})
 target_include_directories(vq_map_conversion_3d SYSTEM PRIVATE ${PCL_INCLUDE_DIRS})
-ament_target_dependencies(vq_map_conversion_2d PUBLIC nav2_map_server nav_msgs)
-target_link_libraries(vq_map_conversion_2d PRIVATE yaml-cpp)
+if(TARGET nav2_map_server::map_io)
+  set(nav2_map_io_libraries nav2_map_server::map_io)
+else()
+  # Humble and Jazzy export MapIO through legacy CMake variables.
+  set(nav2_map_io_libraries ${nav2_map_server_LIBRARIES})
+endif()
+target_link_libraries(vq_map_conversion_2d
+  PRIVATE yaml-cpp ${nav_msgs_TARGETS} ${nav2_map_io_libraries})
+target_include_directories(vq_map_conversion_2d SYSTEM PRIVATE ${nav2_map_server_INCLUDE_DIRS})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
@@ -79,8 +86,8 @@ if(BUILD_TESTING)
     add_dependencies(test_cli_${dimension} vq_map_convert_${dimension} vq_map_inspect_${dimension})
     ament_add_gtest(test_ros_node_${dimension} test/map${dimension}/test_ros_node.cpp TIMEOUT 90
       APPEND_LIBRARY_DIRS "${CMAKE_CURRENT_BINARY_DIR}")
-    target_link_libraries(test_ros_node_${dimension} vq_map_io_${dimension} "${vq_map_typesupport}")
-    ament_target_dependencies(test_ros_node_${dimension} rclcpp std_msgs sensor_msgs nav_msgs)
+    target_link_libraries(test_ros_node_${dimension} vq_map_io_${dimension} "${vq_map_typesupport}"
+      rclcpp::rclcpp ${std_msgs_TARGETS} ${sensor_msgs_TARGETS} ${nav_msgs_TARGETS})
     target_compile_definitions(test_ros_node_${dimension} PRIVATE
       TEST_SERVER_PATH="$<TARGET_FILE:vq_map_server_${dimension}>")
     add_dependencies(test_ros_node_${dimension} vq_map_server_${dimension})
@@ -89,6 +96,8 @@ if(BUILD_TESTING)
     endforeach()
   endforeach()
   target_link_libraries(test_map_io_2d vq_map_io_3d)
+  target_link_libraries(test_map_converter_2d ${nav2_map_io_libraries} ${nav_msgs_TARGETS})
+  target_include_directories(test_map_converter_2d SYSTEM PRIVATE ${nav2_map_server_INCLUDE_DIRS})
   target_sources(test_cli_2d PRIVATE test/map2d/test_inspect.cpp)
   target_link_libraries(test_map_converter_3d ${PCL_LIBRARIES})
   target_include_directories(test_map_converter_3d SYSTEM PRIVATE ${PCL_INCLUDE_DIRS})

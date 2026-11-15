@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include "vq_map_server/vq_map.hpp"
+#include "vq_map_server/map3d/vq_map.hpp"
 #include <cstddef>
 #include <string>
 
-namespace vq_map_server {
+namespace vq_map_server::map3d {
 
 inline constexpr std::size_t kDefaultMaxMapBytes = 1024ULL * 1024ULL * 1024ULL;
 
@@ -16,4 +16,4 @@ VqMap readHdf5(const std::string &path,
 // Exclusive create: never overwrites an existing file.
 void writeHdf5(const std::string &path, const VqMap &map);
 
-}  // namespace vq_map_server
+}  // namespace vq_map_server::map3d

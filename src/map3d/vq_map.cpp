@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 nop <noplab90@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
-#include "vq_map_server/vq_map.hpp"
+#include "vq_map_server/map3d/vq_map.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace vq_map_server {
+namespace vq_map_server::map3d {
 
 VqMap::VqMap(MapMetadata metadata, std::vector<std::uint8_t> dictionary,
              std::vector<std::uint32_t> indices)
@@ -117,4 +117,4 @@ std::vector<std::array<double, 3>> VqMap::occupiedCenters(
   return points;
 }
 
-}  // namespace vq_map_server
+}  // namespace vq_map_server::map3d

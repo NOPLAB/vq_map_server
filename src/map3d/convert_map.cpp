@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 nop <noplab90@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
-#include "vq_map_server/map_converter.hpp"
+#include "vq_map_server/map3d/map_converter.hpp"
 #include <yaml-cpp/yaml.h>
 
 #include <charconv>
@@ -33,7 +33,7 @@ float voxelSize(const std::string &text) {
   return value;
 }
 
-void apply(vq_map_server::ConversionOptions &options, const std::string &name,
+void apply(vq_map_server::map3d::ConversionOptions &options, const std::string &name,
            const std::string &value) {
   if (name == "voxel_size") options.voxel_size = voxelSize(value);
   else if (name == "block_size") options.block_size = unsignedNumber<std::uint32_t>(value);
@@ -43,7 +43,7 @@ void apply(vq_map_server::ConversionOptions &options, const std::string &name,
 }
 
 void usage() {
-  std::cout << "Usage: vq_map_convert --input FILE --output FILE [--config FILE]\n"
+  std::cout << "Usage: vq_map_convert_3d --input FILE --output FILE [--config FILE]\n"
                "  [--voxel-size M] [--block-size N] [--frame-id FRAME] [--max-map-bytes N]\n";
 }
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     if (!flags.count("--input") || !flags.count("--output") ||
         flags.at("--input").empty() || flags.at("--output").empty())
       throw std::invalid_argument("--input and --output are required");
-    vq_map_server::ConversionOptions options;
+    vq_map_server::map3d::ConversionOptions options;
     if (flags.count("--config")) {
       const auto root = YAML::LoadFile(flags.at("--config"));
       const auto scope = root["/**"];
@@ -87,8 +87,8 @@ int main(int argc, char **argv) {
       for (auto &c : name) if (c == '-') c = '_';
       apply(options, name, flag.second);
     }
-    const auto map = vq_map_server::convertPointCloud(flags.at("--input"), options);
-    vq_map_server::writeHdf5(flags.at("--output"), map);
+    const auto map = vq_map_server::map3d::convertPointCloud(flags.at("--input"), options);
+    vq_map_server::map3d::writeHdf5(flags.at("--output"), map);
     struct rusage usage_info {};
     if (getrusage(RUSAGE_SELF, &usage_info) != 0)
       throw std::runtime_error("getrusage failed");
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
               << "elapsed_ms: " << elapsed << '\n';
     return 0;
   } catch (const std::exception &error) {
-    std::cerr << "vq_map_convert: " << error.what() << '\n';
+    std::cerr << "vq_map_convert_3d: " << error.what() << '\n';
     return 1;
   }
 }

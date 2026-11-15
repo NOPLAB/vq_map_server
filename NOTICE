@@ -6,12 +6,21 @@ Copyright 2025 Ryo Funai, licensed under the Apache License, Version 2.0.
 Upstream: https://github.com/cafeline/vq_occupancy_compressor
 Revision: 6157adcde9bd94b796f67dfaf1ffbd67492e3827
 
-The dictionary deduplication and block bit layout in src/map_converter.cpp
-are adapted from src/core/PatternDictionaryBuilder.cpp and
-src/model/VoxelGrid.cpp. The HDF5 packing convention in src/map_io.cpp
-is adapted from src/io/HDF5IO.cpp. The adapted files identify changes.
+The dictionary deduplication in src/common/pattern_dictionary.hpp and the
+3D block bit layout in src/map3d/map_converter.cpp are adapted from
+src/core/PatternDictionaryBuilder.cpp and src/model/VoxelGrid.cpp.
+The HDF5 primitives in src/common/hdf5.hpp and the 3D packing convention
+in src/map3d/map_io.cpp are adapted from src/io/HDF5IO.cpp.
+The adapted files identify changes. The shared primitives also support
+the independently implemented 2D map format.
 
-Reference paper:
+Reference papers:
+Ryo Funai, Yasuo Hayashibara, Ryuichi Ueda,
+"Compression of Occupancy Grid Maps by Vector Quantization and
+Localization Using Maps in Compressed Form", 43rd Annual Conference
+of the Robotics Society of Japan, 2025, RSJ2025AC3Q3-08.
+(English rendering of the Japanese title.)
+
 Ryo Funai, Yasuo Hayashibara, Ryuichi Ueda,
 "Compression of 3D Occupancy Grid Map for Mobile Robot Localization
 using Vector Quantization", 31st Robotics Symposia, 2026, pp. 15-21.

@@ -6,7 +6,8 @@
 // VoxelGrid.cpp x-fastest, least-significant-bit-first byte patterns.
 // Modifications: generic PCL input, checked geometry, sparse block assembly,
 // bounded uint32 indices, and a flat dictionary.
-#include "vq_map_server/map_converter.hpp"
+#include "vq_map_server/map3d/map_converter.hpp"
+#include "../common/pattern_dictionary.hpp"
 
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/io/pcd_io.h>
@@ -24,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-namespace vq_map_server {
+namespace vq_map_server::map3d {
 namespace {
 
 std::size_t checkedMultiply(std::size_t a, std::size_t b) {
@@ -173,10 +174,9 @@ VqMap convertPointCloud(const std::string &path, const ConversionOptions &option
     it->second[bit / 8] |= static_cast<std::uint8_t>(1u << (bit % 8));
   });
 
-  std::vector<std::uint8_t> dictionary;
+  common::PatternDictionary dictionary(pattern_bytes, options.max_map_bytes - index_bytes);
   std::vector<std::uint32_t> indices;
   indices.reserve(block_count);
-  std::map<std::vector<std::uint8_t>, std::uint32_t> pattern_to_index;
   const std::vector<std::uint8_t> empty(pattern_bytes, 0);
   auto occupied_it = occupied.begin();
   // Adapted upstream first-occurrence assignment: traversal order, not map key
@@ -184,19 +184,10 @@ VqMap convertPointCloud(const std::string &path, const ConversionOptions &option
   for (std::size_t block = 0; block < block_count; ++block) {
     const auto &pattern = occupied_it != occupied.end() && occupied_it->first == block
         ? occupied_it->second : empty;
-    auto it = pattern_to_index.find(pattern);
-    if (it == pattern_to_index.end()) {
-      const auto next_index = dictionary.size() / pattern_bytes;
-      if (next_index >= std::numeric_limits<std::uint32_t>::max() ||
-          pattern_bytes > options.max_map_bytes - index_bytes - dictionary.size())
-        throw std::runtime_error("dictionary exceeds max_map_bytes or uint32 range");
-      it = pattern_to_index.emplace(pattern, static_cast<std::uint32_t>(next_index)).first;
-      dictionary.insert(dictionary.end(), pattern.begin(), pattern.end());
-    }
-    indices.push_back(it->second);
+    indices.push_back(dictionary.add(pattern));
     if (occupied_it != occupied.end() && occupied_it->first == block) ++occupied_it;
   }
-  return VqMap(std::move(metadata), std::move(dictionary), std::move(indices));
+  return VqMap(std::move(metadata), std::move(dictionary).take(), std::move(indices));
 }
 
-}  // namespace vq_map_server
+}  // namespace vq_map_server::map3d

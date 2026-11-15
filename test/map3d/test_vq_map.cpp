@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 nop <noplab90@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
-#include "vq_map_server/vq_map.hpp"
+#include "vq_map_server/map3d/vq_map.hpp"
 
 #include <gtest/gtest.h>
 #include <cmath>
@@ -8,9 +8,9 @@
 #include <set>
 
 namespace {
-using vq_map_server::CellState;
-using vq_map_server::MapMetadata;
-using vq_map_server::VqMap;
+using vq_map_server::map3d::CellState;
+using vq_map_server::map3d::MapMetadata;
+using vq_map_server::map3d::VqMap;
 
 MapMetadata metadata() {
   MapMetadata value;

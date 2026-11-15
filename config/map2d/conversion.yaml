@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2026 nop <noplab90@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
+/**:
+  ros__parameters:
+    block_size: 24
+    frame_id: map
+    cell_encoding: ternary
+    unknown_policy: reject
+    max_map_bytes: 1073741824

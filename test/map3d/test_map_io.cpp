@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 nop <noplab90@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
-#include "vq_map_server/map_io.hpp"
+#include "vq_map_server/map3d/map_io.hpp"
 
 #include <gtest/gtest.h>
 #include <hdf5.h>
@@ -13,11 +13,11 @@
 #include <unistd.h>
 
 namespace {
-using vq_map_server::CellState;
-using vq_map_server::MapMetadata;
-using vq_map_server::VqMap;
-using vq_map_server::readHdf5;
-using vq_map_server::writeHdf5;
+using vq_map_server::map3d::CellState;
+using vq_map_server::map3d::MapMetadata;
+using vq_map_server::map3d::VqMap;
+using vq_map_server::map3d::readHdf5;
+using vq_map_server::map3d::writeHdf5;
 
 class MapIoTest : public ::testing::Test {
 protected:

@@ -2,12 +2,12 @@
 <!-- SPDX-FileCopyrightText: 2026 nop <noplab90@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <launch>
-  <arg name="map_path" description="Required PCD, PLY, H5, or HDF5 input map"/>
-  <arg name="converted_map_path" default="" description="Optional new HDF5 output for pointcloud input"/>
-  <arg name="params_file" default="$(find-pkg-share vq_map_server)/config/vq_map_server.yaml"/>
-  <arg name="conversion_params_file" default="$(find-pkg-share vq_map_server)/config/conversion.yaml"/>
+  <arg name="map_path" description="Required map YAML (PGM/PNG) or 2D HDF5 input"/>
+  <arg name="converted_map_path" default="" description="Optional new HDF5 output for YAML input"/>
+  <arg name="params_file" default="$(find-pkg-share vq_map_server)/config/map2d/server.yaml"/>
+  <arg name="conversion_params_file" default="$(find-pkg-share vq_map_server)/config/map2d/conversion.yaml"/>
   <arg name="use_sim_time" default="false"/>
-  <node pkg="vq_map_server" exec="vq_map_server_node" name="vq_map_server" output="screen">
+  <node pkg="vq_map_server" exec="vq_map_server_2d" name="vq_map_server_2d" output="screen">
     <param from="$(var conversion_params_file)"/>
     <param from="$(var params_file)"/>
     <param name="map_path" value="$(var map_path)" type="str"/>

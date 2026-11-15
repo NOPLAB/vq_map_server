@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 nop <noplab90@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
-#include "vq_map_server/map_io.hpp"
+#include "vq_map_server/map3d/map_io.hpp"
 #include <gtest/gtest.h>
 #include <cstdlib>
 #include <filesystem>
@@ -93,11 +93,11 @@ TEST_F(CliTest, RoundTripMetadataExclusiveOutputAndBenchmark) {
   EXPECT_NE(converted.out.find("memory_bytes:"), std::string::npos);
   EXPECT_NE(converted.out.find("peak_rss_kib:"), std::string::npos);
   EXPECT_NE(converted.out.find("elapsed_ms:"), std::string::npos);
-  const auto before = vq_map_server::readHdf5(output);
+  const auto before = vq_map_server::map3d::readHdf5(output);
   const auto duplicate = convert({"--input", input, "--output", output});
   EXPECT_NE(duplicate.status, 0);
   EXPECT_FALSE(duplicate.err.empty());
-  EXPECT_EQ(vq_map_server::readHdf5(output).dictionary(), before.dictionary());
+  EXPECT_EQ(vq_map_server::map3d::readHdf5(output).dictionary(), before.dictionary());
   const auto result = inspect({output, "--queries", "100"});
   ASSERT_EQ(result.status, 0) << result.err;
   EXPECT_NE(result.out.find("dimensions: 3 1 1"), std::string::npos);
@@ -118,7 +118,7 @@ TEST_F(CliTest, ConfigAndFlagsOverrideRegardlessOfOrder) {
   auto result = convert({"--voxel-size", "1", "--frame-id", "flag_frame",
                         "--input", input, "--config", config, "--output", output});
   ASSERT_EQ(result.status, 0) << result.err;
-  auto map = vq_map_server::readHdf5(output);
+  auto map = vq_map_server::map3d::readHdf5(output);
   EXPECT_EQ(map.metadata().voxel_size, 1);
   EXPECT_EQ(map.metadata().block_size, 3u);
   EXPECT_EQ(map.metadata().frame_id, "flag_frame");
@@ -126,11 +126,11 @@ TEST_F(CliTest, ConfigAndFlagsOverrideRegardlessOfOrder) {
   result = convert({"--input", input, "--output", other, "--config", config,
                     "--voxel-size", "1", "--frame-id", "flag_frame"});
   ASSERT_EQ(result.status, 0) << result.err;
-  EXPECT_EQ(vq_map_server::readHdf5(other).dictionary(), map.dictionary());
+  EXPECT_EQ(vq_map_server::map3d::readHdf5(other).dictionary(), map.dictionary());
   const auto only_config = (directory / "config.h5").string();
   result = convert({"--input", input, "--output", only_config, "--config", config});
   ASSERT_EQ(result.status, 0) << result.err;
-  map = vq_map_server::readHdf5(only_config);
+  map = vq_map_server::map3d::readHdf5(only_config);
   EXPECT_EQ(map.metadata().voxel_size, 0.5F);
   EXPECT_EQ(map.metadata().frame_id, "config_frame");
 }

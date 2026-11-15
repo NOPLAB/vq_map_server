@@ -59,6 +59,8 @@ jobs:
       - name: Check installed launch and CLI entry points
         run: |
           source install/setup.bash
-          ros2 launch vq_map_server vq_map_server.launch.xml --show-args
-          ros2 run vq_map_server vq_map_convert --help
-          ros2 run vq_map_server vq_map_inspect --help
+          for dimension in 2d 3d; do
+            ros2 launch vq_map_server "vq_map_server_${dimension}.launch.xml" --show-args
+            ros2 run vq_map_server "vq_map_convert_${dimension}" --help
+            ros2 run vq_map_server "vq_map_inspect_${dimension}" --help
+          done

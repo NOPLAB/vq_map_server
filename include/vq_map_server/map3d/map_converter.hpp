@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include "vq_map_server/map_io.hpp"
+#include "vq_map_server/map3d/map_io.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <string>
 
-namespace vq_map_server {
+namespace vq_map_server::map3d {
 
 struct ConversionOptions {
   float voxel_size = 0.1F;
@@ -22,4 +22,4 @@ struct ConversionOptions {
 VqMap convertPointCloud(const std::string &path,
                         const ConversionOptions &options = {});
 
-}  // namespace vq_map_server
+}  // namespace vq_map_server::map3d

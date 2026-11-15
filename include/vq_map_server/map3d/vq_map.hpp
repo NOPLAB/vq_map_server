@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace vq_map_server {
+namespace vq_map_server::map3d {
 
 struct MapMetadata {
   std::string frame_id = "map";
@@ -55,4 +55,4 @@ private:
   std::vector<std::uint32_t> indices_;
 };
 
-}  // namespace vq_map_server
+}  // namespace vq_map_server::map3d

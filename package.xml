@@ -2,7 +2,7 @@
 <package format="3">
   <name>vq_map_server</name>
   <version>0.1.0</version>
-  <description>Vector-quantized 3D occupancy map conversion and static map distribution.</description>
+  <description>Vector-quantized 2D and 3D occupancy map conversion and static map distribution.</description>
   <maintainer email="noplab90@gmail.com">nop</maintainer>
   <author email="noplab90@gmail.com">nop</author>
   <license>Apache-2.0</license>
@@ -12,6 +12,8 @@
   <depend>rcl_interfaces</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>nav2_map_server</depend>
   <depend>libpcl-all-dev</depend>
   <depend>libhdf5-dev</depend>
   <depend>yaml-cpp</depend>

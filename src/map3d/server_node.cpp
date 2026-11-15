@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 nop <noplab90@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
-#include "vq_map_server/map_converter.hpp"
-#include "vq_map_server/msg/vq_map.hpp"
-#include "vq_map_server/srv/get_vq_map.hpp"
+#include "vq_map_server/map3d/map_converter.hpp"
+#include "vq_map_server/msg/vq_map3_d.hpp"
+#include "vq_map_server/srv/get_vq_map3_d.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -20,11 +20,11 @@
 #include <string>
 #include <vector>
 
-namespace vq_map_server {
+namespace vq_map_server::map3d {
 
 class VqMapServer final : public rclcpp::Node {
 public:
-  VqMapServer() : Node("vq_map_server") {
+  VqMapServer() : Node("vq_map_server_3d") {
     rcl_interfaces::msg::ParameterDescriptor immutable;
     immutable.read_only = true;
     const auto path = declare_parameter<std::string>("map_path", "", immutable);
@@ -138,11 +138,11 @@ public:
     }
     // Endpoints are created only after loading, validation, and optional saving succeed.
     const auto qos = rclcpp::QoS(rclcpp::KeepLast(1)).reliable().transient_local();
-    publisher_ = create_publisher<msg::VqMap>("~/map", qos);
-    service_ = create_service<srv::GetVqMap>(
+    publisher_ = create_publisher<vq_map_server::msg::VqMap3D>("~/map", qos);
+    service_ = create_service<vq_map_server::srv::GetVqMap3D>(
         "~/get_map",
-        [this](const std::shared_ptr<srv::GetVqMap::Request>,
-               std::shared_ptr<srv::GetVqMap::Response> response) {
+        [this](const std::shared_ptr<vq_map_server::srv::GetVqMap3D::Request>,
+               std::shared_ptr<vq_map_server::srv::GetVqMap3D::Response> response) {
           response->map = snapshot_;
         });
     if (visualize) {
@@ -157,20 +157,20 @@ public:
   }
 
 private:
-  msg::VqMap snapshot_;
-  rclcpp::Publisher<msg::VqMap>::SharedPtr publisher_;
+  vq_map_server::msg::VqMap3D snapshot_;
+  rclcpp::Publisher<vq_map_server::msg::VqMap3D>::SharedPtr publisher_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_publisher_;
-  rclcpp::Service<srv::GetVqMap>::SharedPtr service_;
+  rclcpp::Service<vq_map_server::srv::GetVqMap3D>::SharedPtr service_;
 };
-}  // namespace vq_map_server
+}  // namespace vq_map_server::map3d
 
 int main(int argc, char **argv) {
   int result = 0;
   try {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<vq_map_server::VqMapServer>());
+    rclcpp::spin(std::make_shared<vq_map_server::map3d::VqMapServer>());
   } catch (const std::exception &error) {
-    RCLCPP_ERROR(rclcpp::get_logger("vq_map_server"), "%s", error.what());
+    RCLCPP_ERROR(rclcpp::get_logger("vq_map_server_3d"), "%s", error.what());
     result = 1;
   }
   if (rclcpp::ok()) {
